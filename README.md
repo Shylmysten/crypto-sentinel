@@ -1,12 +1,71 @@
-# React + Vite
+# 🧠 App Overview: Crypto Sentinel
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Purpose:**  
+A mining pool monitor that allows users to input a wallet address or API credentials for a mining pool and retrieve real-time stats (earnings, hashrate, workers, etc.).
 
-Currently, two official plugins are available:
+----------
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ⚙️ Key Features
 
-## Expanding the ESLint configuration
+### 🔍 Input
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+-   **Wallet Address Input** (for read-only public data)
+    
+-   **Optional API Key Input** (for pools that support it)
+    
+-   **Select Mining Pool** (dropdown or manual entry)
+    
+-   **Add Multiple Pools / Wallets to Monitor**
+    
+
+### 📊 Display
+
+-   Current hashrate    
+-   Average hashrate   
+-   Unpaid balance
+-   Workers online/offline
+-   Rewards history
+-   Estimated earnings
+-   Pool statistics (latency, payout threshold, etc.)
+    
+
+### 🛠️ Extras (Optional Enhancements)
+
+-   Real-time updates (polling or WebSocket)    
+-   Notification for offline workers or low earnings   
+-   Dark mode toggle    
+-   Persist user preferences in localStorage
+    
+
+----------
+## 🧩 Example Pools to Support First
+
+Each pool has different APIs, so start with a few known ones:
+
+|   Pool         | Docs                       
+|----------------|-------------------------------|
+|Ethermine		 |[https://api.ethermine.org/docs](https://api.ethermine.org/docs)|
+|Flexpool        |[https://flexpool.io/api](https://flexpool.io/api)|
+|F2Pool          |[https://developer.f2pool.com/](https://developer.f2pool.com/)|
+|Hiveon			 |[https://hiveon.net/](https://hiveon.net/) (unofficial APIs available)|
+
+## 📦 Tech Stack
+|   Pool         	|Docs                       
+|-------------------|-------------------------------|
+|UI		 			|React + Tailwind|
+|State        		|[useState / useEffect / Context API or Redux (if needed)|
+|API          		|Axios|
+|Storage			|localStorage or IndexedDB|
+|Notifications		|Toast notifications (`react-toastify`)
+|Charts				|`recharts`, `chart.js`, or `nivo`
+|Auth 				|Firebase or Auth0 (for saving dashboards)
+
+## 🧠 Future Improvements
+
+-   Use a chart to show hashrate over time
+    
+-   Add alerting (e.g., when hashrate drops)
+    
+-   Export data to CSV
+    
+-   PWA support for mobile dashboard access
