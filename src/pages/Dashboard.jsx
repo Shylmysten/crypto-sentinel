@@ -3,20 +3,61 @@ import StatsCard from '../components/StatsCard';
 import WorkerList from '../components/WorkerList';
 import RewardsTable from '../components/RewardTable';
 import { usePoolStats } from '../hooks/usePoolStats';
-import { POOL_NAMES } from '../constants/pools';
+import { POOL_META } from '../constants/pools';
 
 
 const Dashboard = ({ wallet, pool }) => {
-  const { dashboard, workers, payouts, loading, error } = usePoolStats(wallet, pool);
+  const { dashboard, workers, payouts, loading, error, lastUpdated } = usePoolStats(wallet, pool);
 
 
-  if (loading) return <p>Loading dashboard...</p>;
-  if (error) return <p style={{ color: 'red' }}>Error: {error}</p>;
-  if (!dashboard) return <p>No stats available for this wallet.</p>;
+const isWalletValid = /^0x[a-fA-F0-9]{40}$/.test(wallet);
+
+  if (!isWalletValid) {
+    return <p style={{ color: 'red' }}>Invalid wallet address format.</p>;
+  }
+
+  if (loading) {
+    return (
+      <div className="loading-state">
+        <p>⏳ Loading dashboard for {POOL_META[pool]?.name || pool}...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="error-state" style={{ color: 'red' }}>
+        <p>❌ Error: {error}</p>
+        <p>Please check your wallet address and try again.</p>
+      </div>
+    );
+  }
+
+  if (!dashboard) {
+    return <p>No data found for this wallet on {POOL_META[pool]?.name || pool}.</p>;
+  }
 
   return (
     <div className="dashboard">
-      <h2>Dashboard for {wallet} on ({POOL_NAMES[pool] || pool})</h2>
+      <h2 className="dashboard-heading">
+          Dashboard for {wallet}{' '}
+          <span className="pool-meta">
+            <img
+              src={POOL_META[pool]?.icon}
+              alt={POOL_META[pool]?.name}
+              className="pool-icon"
+            />
+            {POOL_META[pool]?.name || pool}
+          </span>
+      </h2>
+
+      {lastUpdated && (
+        <p style={{ fontSize: '0.85rem', color: '#666' }}>
+          Last updated: {lastUpdated.toLocaleString()}
+        </p>
+      )}
+
+
 
       <div className="stats-grid">
         <StatsCard 

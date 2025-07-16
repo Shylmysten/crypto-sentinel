@@ -9,11 +9,12 @@ export const usePoolStats = (wallet, pool) => {
     payouts: [],
     loading: true,
     error: null,
+    lastUpdated: null,
   });
 
   useEffect(() => {
     const fetch = async () => {
-      setData((prev) => ({ ...prev, loading: true }));
+      setData((prev) => ({ ...prev, loading: true, error: null }));
       try {
         const api = getPoolService(pool);
         const [dashboard, workers, payouts] = await Promise.all([
@@ -21,9 +22,24 @@ export const usePoolStats = (wallet, pool) => {
           api.getWorkers(wallet),
           api.getPayouts(wallet),
         ]);
-        setData({ dashboard, workers, payouts, loading: false, error: null });
+
+        setData({
+          dashboard,
+          workers,
+          payouts,
+          loading: false,
+          error: null,
+          lastUpdated: new Date(),
+        });
       } catch (err) {
-        setData({ dashboard: null, workers: [], payouts: [], loading: false, error: err.message });
+        setData({
+          dashboard: null,
+          workers: [],
+          payouts: [],
+          loading: false,
+          error: err.message || 'Failed to load data.',
+          lastUpdated: null,
+        });
       }
     };
 
