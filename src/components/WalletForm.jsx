@@ -7,16 +7,17 @@ import { isWalletValid } from '../utils/helpers';
 import { POOL_META } from '../constants/pools';
 import { v4 as uuidv4 } from 'uuid';
 import { encryptToken } from '../utils/crypto';
+import toast from 'react-hot-toast';
 
 
 const WalletForm = ({ onSuccess }) => {
   const { user } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({
     pool: 'ethermine',
     value: '',
     label: '',
   });
-  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -24,43 +25,51 @@ const WalletForm = ({ onSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { pool, value, label } = form;
-    const trimmed = value.trim();
+    setIsSubmitting(true);
 
-    if (!isWalletValid(trimmed, pool)) {
-      setError(`Invalid address/token format for ${pool}`);
-      return;
-    }
+    try {
+      const { pool, value, label } = form;
+      const trimmed = value.trim();
 
-    const isTokenPool = pool === 'hiveos' || pool === 'powerpool';
+      if (!isWalletValid(trimmed, pool)) {
+        toast.error(`Invalid address/token format for ${pool}`);
+        return; // This will skip to finally block and reset isSubmitting
+      }
 
-    const newWallet = {
-      id: uuidv4(),
-      pool,
-      type: isTokenPool ? 'token' : 'wallet',
-      label: label || `${pool} ${isTokenPool ? 'Token' : 'Wallet'}`,
-      ...(isTokenPool ? { token: encryptToken(trimmed) } : { address: trimmed }),
-      active: false,
-    };
+      const isTokenPool = pool === 'hiveos' || pool === 'powerpool';
 
-    const userRef = doc(db, 'users', user.uid);
-    const snapshot = await getDoc(userRef);
-    const existing = snapshot.data()?.settings?.wallets || [];
+      const newWallet = {
+        id: uuidv4(),
+        pool,
+        type: isTokenPool ? 'token' : 'wallet',
+        label: label || `${pool} ${isTokenPool ? 'Token' : 'Wallet'}`,
+        ...(isTokenPool ? { token: encryptToken(trimmed) } : { address: trimmed }),
+        active: false,
+      };
 
-    await setDoc(
-      userRef,
-      {
-        settings: {
-          wallets: [...existing, newWallet],
+      const userRef = doc(db, 'users', user.uid);
+      const snapshot = await getDoc(userRef);
+      const existing = snapshot.data()?.settings?.wallets || [];
+
+      await setDoc(
+        userRef,
+        {
+          settings: {
+            wallets: [...existing, newWallet],
+          },
         },
-      },
-      { merge: true }
-    );
+        { merge: true }
+      );
 
-    setForm({ pool: 'ethermine', value: '', label: '' });
-    setError('');
-    if (onSuccess) onSuccess(); // ✅ Refresh wallet list
-    alert('Saved successfully!');
+      setForm({ pool: 'ethermine', value: '', label: '' });
+      if (onSuccess) onSuccess(); // ✅ Refresh wallet list
+      toast.success('Wallet/Token saved successfully!');
+    } catch (error) {
+      console.error('Error saving wallet/token:', error);
+      toast.error('Failed to save wallet/token. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const isTokenPool = form.pool === 'hiveos' || form.pool === 'powerpool';
@@ -108,13 +117,17 @@ const WalletForm = ({ onSuccess }) => {
         />
       </div>
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
 
       <button
         type="submit"
-        className="bg-green-600 hover:bg-green-500 text-black font-bold py-2 px-4 rounded"
+        disabled={isSubmitting}
+        className={`py-2 px-4 font-bold rounded transition ${
+          isSubmitting 
+            ? 'bg-gray-500 cursor-not-allowed text-gray-300'
+            : 'bg-green-600 hover:bg-green-500 text-black'
+        }`}
       >
-        Save Wallet/Token
+        {isSubmitting ? 'Saving...' : 'Save Wallet/Token'}
       </button>
     </form>
   );

@@ -30,30 +30,30 @@ const Header = () => {
 
       {/* Right: Nav + User */}
       {user && (
-        <div className="flex items-center gap-6 text-green-300 font-mono text-sm">
+        <div className="flex items-center gap-2 md:gap-6 text-green-300 font-mono text-xs md:text-sm">
           {/* Navigation Links */}
-          <nav className="flex gap-4">
+          <nav className="flex gap-2 md:gap-4">
             <Link
               to="/dashboard"
-              className="hover:text-green-400 transition border-b-2 border-transparent hover:border-green-400"
+              className="hover:text-green-400 transition border-b-2 border-transparent hover:border-green-400 px-2 py-1"
             >
               Dashboard
             </Link>
             <Link
               to="/settings"
-              className="hover:text-green-400 transition border-b-2 border-transparent hover:border-green-400"
+              className="hover:text-green-400 transition border-b-2 border-transparent hover:border-green-400 px-2 py-1"
             >
               Settings
             </Link>
           </nav>
 
-          {/* User Email */}
-          <span className="truncate max-w-[150px]">{user.email}</span>
+          {/* User Email - Hide on small screens */}
+          <span className="hidden md:block truncate max-w-[150px]">{user.email}</span>
 
           {/* Logout Button */}
           <button
             onClick={handleLogout}
-            className="text-xs border border-green-400 px-3 py-1 rounded hover:bg-green-600 hover:text-black transition"
+            className="text-xs border border-green-400 px-2 md:px-3 py-1 rounded hover:bg-green-600 hover:text-black transition"
           >
             Log Out
           </button>

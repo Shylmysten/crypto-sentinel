@@ -1,5 +1,5 @@
 // src/pages/Dashboard.jsx
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../context/useAuth';
@@ -12,18 +12,18 @@ const Dashboard = () => {
   const [wallets, setWallets] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchWallets = async () => {
+  const fetchWallets = useCallback(async () => {
       if (!user) return;
       const userDoc = doc(db, 'users', user.uid);
       const snapshot = await getDoc(userDoc);
       const saved = snapshot.data()?.settings?.wallets || [];
       setWallets(saved);
       setLoading(false);
-    };
-
-    fetchWallets();
   }, [user]);
+
+  useEffect(() => {
+    fetchWallets();
+  }, [fetchWallets]);
 
   if (loading) return <p className="text-green-300">Loading mining data...</p>;
 

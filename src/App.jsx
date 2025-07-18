@@ -5,6 +5,7 @@ import AppRoutes from './AppRoutes';
 import Header from './components/common/Header';
 import sentinelLogo from '/sentinel_logo.png';
 import MatrixCanvas from './components/MatrixCanvas';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   const location = useLocation();
@@ -25,6 +26,16 @@ function App() {
     <div className={`relative min-h-screen ${!isAuthPage ? 'bg-black' : ''}`}>
       {/* ✅ Show Matrix rain ONLY on login/register */}
       {isAuthPage && showMatrix && <MatrixCanvas />}
+        <Toaster 
+          position="top-right"
+          toastOptions={{
+            style: {
+              background: '#000',
+              color: '#4ade80',
+              border: '1px solid #22c55e',
+            },
+          }}
+        />
 
       {/* 🟢 Add Header */}
       <Header />

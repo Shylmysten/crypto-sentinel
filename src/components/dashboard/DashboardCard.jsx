@@ -1,6 +1,7 @@
 // src/components/DashboardCard.jsx
+import { useMemo } from 'react';
+import { usePoolMeta } from '../../hooks/usePoolMeta';
 import { usePoolStats } from '../../hooks/usePoolStats';
-import { POOL_META } from '../../constants/pools';
 import EarningsSummary from '../earnings/EarningsSummary';
 import PoolStatsTable from '../pools/PoolStatsTable';
 import WorkerTable from '../workers/WorkerTable';
@@ -28,19 +29,21 @@ const DashboardCard = ({ walletOrToken, pool, label }) => {
     lastUpdated,
   } = usePoolStats(decrypted, pool);
 
-  const getUnit = () => {
+  const unit = useMemo(() => {
     switch (pool) {
       case 'hiveos':
         return '';
       default:
         return 'ETH';
     }
-  };
+  }, [pool]);
+
+  const poolMeta = usePoolMeta(pool);
 
   if (!isWalletValid(decrypted, pool)) {
     return (
       <DashboardError 
-        message={`❌ Invalid wallet/token format for ${POOL_META[pool]?.name || pool}`}
+        message={`❌ Invalid wallet/token format for ${poolMeta.name}`}
       />
     );
   }
@@ -48,7 +51,7 @@ const DashboardCard = ({ walletOrToken, pool, label }) => {
   if (loading) {
     return (
       <DashboardLoading
-        poolName={POOL_META[pool]?.name || pool}
+        poolName={poolMeta.name}
         label={label || decrypted}
       />
     );
@@ -65,7 +68,7 @@ const DashboardCard = ({ walletOrToken, pool, label }) => {
   if (!dashboard) {
     return (
       <DashboardEmpty 
-        poolName={POOL_META[pool]?.name || pool}
+        poolName={poolMeta.name}
       />
     );
   }
@@ -77,14 +80,14 @@ const DashboardCard = ({ walletOrToken, pool, label }) => {
           {label || decrypted}
         </h3>
         <div className="flex items-center gap-2 text-sm text-green-300">
-          {POOL_META[pool]?.icon && (
+          {poolMeta.hasIcon && (
             <img
-              src={POOL_META[pool].icon}
-              alt={`${POOL_META[pool].name} mining pool icon`}
+              src={poolMeta.icon}
+              alt={`${poolMeta.name} mining pool icon`}
               className="w-5 h-5"
             />
           )}
-          {POOL_META[pool]?.name || pool}
+          {poolMeta.name}
         </div>
       </div>
 
@@ -97,7 +100,7 @@ const DashboardCard = ({ walletOrToken, pool, label }) => {
       <EarningsSummary
         unpaid={dashboard.unpaid ?? dashboard.balance ?? 0}
         estimated={dashboard.estimatedEarnings ?? 0}
-        unit={getUnit()}
+        unit={unit}
       />
 
       {dashboard.poolStats ? (
@@ -108,7 +111,7 @@ const DashboardCard = ({ walletOrToken, pool, label }) => {
 
       <WorkerList workers={workers} />
       <WorkerTable workers={workers} />
-      <RewardsTable rewards={payouts} unit={getUnit()} />
+      <RewardsTable rewards={payouts} unit={unit} />
     </div>
   );
 };
