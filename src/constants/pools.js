@@ -1,6 +1,4 @@
 // src/constants/pools.js
-
-// Later, you can expand this to include icons or URLs:
 export const POOL_META = {
   ethermine: {
     name: 'Ethermine',
@@ -16,5 +14,15 @@ export const POOL_META = {
     name: 'F2Pool',
     icon: '/icons/f2pool-logo.png',
     url: 'https://www.f2pool.com',
+  },
+  hiveon: {
+    name: 'Hiveon',
+    icon: '/icons/hiveon-logo.png',
+    url: 'https://hiveon.net',
+  },
+  powerpool: {
+    name: 'PowerPool',
+    icon: '/icons/powerpool-logo.png',
+    url: 'https://powerpool.io',
   },
 };

@@ -1,6 +1,9 @@
-// src/components/PoolSelector.jsx
+import { useEffect, useState } from 'react';
 import Select from 'react-select';
 import { POOL_META } from '../constants/pools';
+import { useAuth } from '../context/useAuth';
+import { db } from '../firebase/firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 const poolOptions = Object.entries(POOL_META).map(([value, meta]) => ({
   value,
@@ -15,21 +18,46 @@ const customSingleValue = ({ data }) => (
   </div>
 );
 
-const customOption = (props) => {
-  const { data, innerRef, innerProps } = props;
-  return (
-    <div ref={innerRef} {...innerProps} style={{ display: 'flex', alignItems: 'center', padding: '0.5rem' }}>
-      <img src={data.icon} alt="" style={{ width: 20, marginRight: 8 }} />
-      {data.label}
-    </div>
-  );
-};
+const customOption = ({ data, innerRef, innerProps }) => (
+  <div
+    ref={innerRef}
+    {...innerProps}
+    style={{ display: 'flex', alignItems: 'center', padding: '0.5rem' }}
+  >
+    <img src={data.icon} alt="" style={{ width: 20, marginRight: 8 }} />
+    {data.label}
+  </div>
+);
 
-const PoolSelector = ({ onSelect }) => {
-  const defaultOption = poolOptions[0];
+const PoolSelector = () => {
+  const { user, settings } = useAuth();
+  const initial = settings?.pool || 'ethermine';
+  const [selectedPool, setSelectedPool] = useState(initial);
 
-  const handleChange = (selectedOption) => {
-    onSelect(selectedOption.value);
+  // Sync when settings change (e.g. from Firestore)
+  useEffect(() => {
+    if (settings?.pool && settings.pool !== selectedPool) {
+      setSelectedPool(settings.pool);
+    }
+  }, [settings?.pool]);
+
+  const handleChange = async (selectedOption) => {
+    const newPool = selectedOption.value;
+    setSelectedPool(newPool); // 🔥 Instant UI update
+
+    if (user) {
+      const userDoc = doc(db, 'users', user.uid);
+      await setDoc(
+        userDoc,
+        {
+          settings: {
+            ...settings,
+            pool: newPool,
+          },
+        },
+        { merge: true }
+      );
+    }
   };
 
   return (
@@ -38,7 +66,7 @@ const PoolSelector = ({ onSelect }) => {
       <Select
         id="pool"
         options={poolOptions}
-        defaultValue={defaultOption}
+        value={poolOptions.find((opt) => opt.value === selectedPool)}
         onChange={handleChange}
         components={{ Option: customOption, SingleValue: customSingleValue }}
         styles={{
@@ -50,4 +78,3 @@ const PoolSelector = ({ onSelect }) => {
 };
 
 export default PoolSelector;
-

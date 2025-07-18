@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase/firebase';
 import { useNavigate, Link } from 'react-router-dom';
+import usePageTitle from '../hooks/usePageTitle';
+import PasswordInput from '../components/PasswordInput';
 
 
 const Register = () => {
@@ -10,6 +12,7 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  usePageTitle('Register');
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -41,18 +44,12 @@ const Register = () => {
               />
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-green-400 text-sm mb-1">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 bg-black border border-green-500 text-green-300 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
-              />
-            </div>
+            <PasswordInput
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+
+
 
             <button
               type="submit"

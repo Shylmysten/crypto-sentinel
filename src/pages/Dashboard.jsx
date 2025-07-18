@@ -1,86 +1,47 @@
-// src/components/Dashboard.jsx
-import StatsCard from '../components/StatsCard';
-import WorkerList from '../components/WorkerList';
-import RewardsTable from '../components/RewardTable';
-import { usePoolStats } from '../hooks/usePoolStats';
-import { POOL_META } from '../constants/pools';
+// src/pages/Dashboard.jsx
+import { useEffect, useState } from 'react';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../firebase/firebase';
+import { useAuth } from '../context/useAuth';
+import usePageTitle from '../hooks/usePageTitle';
+import DashboardCard from '../components/DashboardCard';
 
+const Dashboard = () => {
+  usePageTitle('Dashboard');
+  const { user } = useAuth();
+  const [wallets, setWallets] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-const Dashboard = ({ wallet, pool }) => {
-  const { dashboard, workers, payouts, loading, error, lastUpdated } = usePoolStats(wallet, pool);
+  useEffect(() => {
+    const fetchWallets = async () => {
+      if (!user) return;
+      const userDoc = doc(db, 'users', user.uid);
+      const snapshot = await getDoc(userDoc);
+      const saved = snapshot.data()?.settings?.wallets || [];
+      setWallets(saved);
+      setLoading(false);
+    };
 
+    fetchWallets();
+  }, [user]);
 
-const isWalletValid = /^0x[a-fA-F0-9]{40}$/.test(wallet);
+  if (loading) return <p className="text-green-300">Loading mining data...</p>;
 
-  if (!isWalletValid) {
-    return <p style={{ color: 'red' }}>Invalid wallet address format.</p>;
-  }
-
-  if (loading) {
-    return (
-      <div className="loading-state">
-        <p>⏳ Loading dashboard for {POOL_META[pool]?.name || pool}...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="error-state" style={{ color: 'red' }}>
-        <p>❌ Error: {error}</p>
-        <p>Please check your wallet address and try again.</p>
-      </div>
-    );
-  }
-
-  if (!dashboard) {
-    return <p>No data found for this wallet on {POOL_META[pool]?.name || pool}.</p>;
+  if (!wallets.length) {
+    return <p className="text-green-300">No wallets or tokens saved. Add one in Settings.</p>;
   }
 
   return (
-    <div className="dashboard">
-      <h2 className="dashboard-heading">
-          Dashboard for {wallet}{' '}
-          <span className="pool-meta">
-            <img
-              src={POOL_META[pool]?.icon}
-              alt={POOL_META[pool]?.name}
-              className="pool-icon"
-            />
-            {POOL_META[pool]?.name || pool}
-          </span>
-      </h2>
-
-      {lastUpdated && (
-        <p style={{ fontSize: '0.85rem', color: '#666' }}>
-          Last updated: {lastUpdated.toLocaleString()}
-        </p>
-      )}
-
-
-
-      <div className="stats-grid">
-        <StatsCard 
-          label="Current Hashrate" 
-          value={`${(dashboard?.currentHashrate || 0).toFixed(2)} H/s`} 
+    <div className="max-w-6xl mx-auto px-4 py-6 space-y-10">
+      <h2 className="text-2xl font-bold text-green-400 mb-6">Your Mining Dashboard</h2>
+      {wallets.map((cred) => (
+        <DashboardCard
+          key={cred.id}
+          walletOrToken={cred.address || cred.token}
+          pool={cred.pool}
+          label={cred.label}
         />
-        <StatsCard 
-          label="Average Hashrate" 
-          value={`${(dashboard?.averageHashrate || 0).toFixed(2)} H/s`} 
-        />
-        <StatsCard 
-          label="Unpaid Balance" 
-          value={`${((dashboard?.unpaid || 0) / 1e18).toFixed(5)} ETH`}   
-        />
-        <StatsCard 
-          label="Active Workers" 
-          value={dashboard?.activeWorkers || 0}          
-        />
-      </div>
-
-
-      <WorkerList workers={workers} />
-      <RewardsTable payouts={payouts} />
+      ))}
     </div>
   );
 };
