@@ -38,6 +38,7 @@ function App() {
               ${showMatrix
                 ? 'bg-green-400 text-black shadow-green-400'
                 : 'bg-gray-800 text-green-400 border border-green-400'}`}
+            aria-label={`Turn matrix rain ${showMatrix ? 'off' : 'on'}`}
           >
             {showMatrix ? '⏻ Rain On' : '⭘ Rain Off'}
           </button>

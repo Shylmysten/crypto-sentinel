@@ -80,7 +80,7 @@ const DashboardCard = ({ walletOrToken, pool, label }) => {
           {POOL_META[pool]?.icon && (
             <img
               src={POOL_META[pool].icon}
-              alt={POOL_META[pool].name}
+              alt={`${POOL_META[pool].name} mining pool icon`}
               className="w-5 h-5"
             />
           )}

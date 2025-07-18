@@ -13,7 +13,7 @@ const poolOptions = Object.entries(POOL_META).map(([value, meta]) => ({
 
 const customSingleValue = ({ data }) => (
   <div style={{ display: 'flex', alignItems: 'center' }}>
-    <img src={data.icon} alt="" style={{ width: 20, marginRight: 8 }} />
+    <img src={data.icon} alt={`${data.name} pool icon`} style={{ width: 20, marginRight: 8 }} />
     {data.label}
   </div>
 );
@@ -24,7 +24,7 @@ const customOption = ({ data, innerRef, innerProps }) => (
     {...innerProps}
     style={{ display: 'flex', alignItems: 'center', padding: '0.5rem' }}
   >
-    <img src={data.icon} alt="" style={{ width: 20, marginRight: 8 }} />
+    <img src={data.icon} alt={`${data.name} pool icon`} style={{ width: 20, marginRight: 8 }} />
     {data.label}
   </div>
 );

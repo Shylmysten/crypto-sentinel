@@ -70,6 +70,7 @@ const WalletForm = ({ onSuccess }) => {
       <div>
         <label className="block text-sm mb-1 font-bold">Select Pool</label>
         <select
+          id='pool'
           name="pool"
           value={form.pool}
           onChange={handleChange}
@@ -86,6 +87,7 @@ const WalletForm = ({ onSuccess }) => {
           {isTokenPool ? 'API Token' : 'Wallet Address'}
         </label>
         <input
+          id='walletValue'
           name="value"
           type="text"
           value={form.value}
@@ -97,6 +99,7 @@ const WalletForm = ({ onSuccess }) => {
       <div>
         <label className="block text-sm mb-1 font-bold">Optional Label</label>
         <input
+          id='label'
           name="label"
           type="text"
           value={form.label}

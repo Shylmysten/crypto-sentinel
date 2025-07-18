@@ -57,6 +57,14 @@ export const usePoolStats = (walletOrToken, pool) => {
           lastUpdated: new Date(),
         });
       } catch (err) {
+        // Add logging for debugging
+        console.error('Pool stats fetch error:', {
+          pool,
+          walletOrToken: walletOrToken?.substring(0, 10) + '...', // Don't log full sensitive data
+          error: err.message,
+          timestamp: new Date().toISOString()
+        });
+
         setData({
           dashboard: null,
           workers: [],

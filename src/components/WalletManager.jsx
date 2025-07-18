@@ -84,12 +84,14 @@ const WalletManager = ({ wallets, loading, onRefresh }) => {
                   <button
                     onClick={() => setEditingId(cred.id)}
                     className="text-yellow-300 hover:underline text-sm"
+                    aria-label={`Change token for ${cred.pool} ${cred.type}`}
                   >
                     🔄 Change
                   </button>
                   <button
                     onClick={() => deleteWallet(cred.id)}
                     className="text-red-400 hover:underline text-sm"
+                    aria-label={`Delete ${cred.pool} ${cred.type}`}
                   >
                     🗑 Delete
                   </button>

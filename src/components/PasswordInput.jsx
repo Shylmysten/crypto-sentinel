@@ -21,6 +21,7 @@ const PasswordInput = ({ value, onChange, id = 'password', label = 'Password' })
           type="button"
           onClick={() => setPasswordVisible((prev) => !prev)}
           className="absolute right-2 top-1/2 -translate-y-1/2 text-black hover:text-gray-800 transition"
+          aria-label={passwordVisible ? "Hide password" : "Show password"}
         >
           {passwordVisible ? <FiEyeOff size={18} /> : <FiEye size={18} />}
         </button>
