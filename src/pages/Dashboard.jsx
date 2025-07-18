@@ -4,7 +4,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../context/useAuth';
 import usePageTitle from '../hooks/usePageTitle';
-import DashboardCard from '../components/DashboardCard';
+import DashboardCard from '../components/dashboard/DashboardCard';
 
 const Dashboard = () => {
   usePageTitle('Dashboard');

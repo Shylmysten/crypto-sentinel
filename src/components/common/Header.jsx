@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/useAuth';
+import { useAuth } from '../../context/useAuth';
 import sentinelLogo from '/sentinel_logo.png';
 
 const Header = () => {

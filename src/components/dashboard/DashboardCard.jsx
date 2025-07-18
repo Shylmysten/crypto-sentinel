@@ -1,13 +1,16 @@
 // src/components/DashboardCard.jsx
-import { usePoolStats } from '../hooks/usePoolStats';
-import { POOL_META } from '../constants/pools';
-import EarningsSummary from './EarningsSummary';
-import PoolStatsTable from './PoolStatsTable';
-import WorkerTable from './WorkerTable';
-import WorkerList from './WorkerList';
-import RewardsTable from './RewardsTable';
-import { isWalletValid } from '../utils/helpers';
-import { decryptToken } from '../utils/crypto'; // ✅ Step 6: Import decryption function
+import { usePoolStats } from '../../hooks/usePoolStats';
+import { POOL_META } from '../../constants/pools';
+import EarningsSummary from '../earnings/EarningsSummary';
+import PoolStatsTable from '../pools/PoolStatsTable';
+import WorkerTable from '../workers/WorkerTable';
+import WorkerList from '../workers/WorkerList';
+import RewardsTable from '../earnings/RewardsTable';
+import { isWalletValid } from '../../utils/helpers';
+import { decryptToken } from '../../utils/crypto';
+import DashboardError from './DashboardError';
+import DashboardLoading from './DashboardLoading';
+import DashboardEmpty from './DashboardEmpty';
 
 const DashboardCard = ({ walletOrToken, pool, label }) => {
   // ✅ Step 6: Decrypt token if needed
@@ -36,33 +39,34 @@ const DashboardCard = ({ walletOrToken, pool, label }) => {
 
   if (!isWalletValid(decrypted, pool)) {
     return (
-      <div className="border border-red-500 p-4 rounded text-red-400">
-        <p>❌ Invalid wallet/token format for {POOL_META[pool]?.name || pool}</p>
-      </div>
+      <DashboardError 
+        message={`❌ Invalid wallet/token format for ${POOL_META[pool]?.name || pool}`}
+      />
     );
   }
 
   if (loading) {
     return (
-      <div className="border border-green-500 p-4 rounded text-green-300">
-        <p>⏳ Loading {POOL_META[pool]?.name || pool} data for {label || decrypted}...</p>
-      </div>
+      <DashboardLoading
+        poolName={POOL_META[pool]?.name || pool}
+        label={label || decrypted}
+      />
     );
   }
 
   if (error) {
     return (
-      <div className="border border-red-500 p-4 rounded text-red-400">
-        <p>❌ Error loading data: {error}</p>
-      </div>
+      <DashboardError 
+        message={`❌ Error loading data: ${error}`}
+      />
     );
   }
 
   if (!dashboard) {
     return (
-      <div className="border border-yellow-500 p-4 rounded text-yellow-400">
-        <p>No dashboard data found for {POOL_META[pool]?.name || pool}.</p>
-      </div>
+      <DashboardEmpty 
+        poolName={POOL_META[pool]?.name || pool}
+      />
     );
   }
 

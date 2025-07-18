@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import Select from 'react-select';
-import { POOL_META } from '../constants/pools';
-import { useAuth } from '../context/useAuth';
-import { db } from '../firebase/firebase';
+import { POOL_META } from '../../constants/pools';
+import { useAuth } from '../../context/useAuth';
+import { db } from '../../firebase/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 
 const poolOptions = Object.entries(POOL_META).map(([value, meta]) => ({

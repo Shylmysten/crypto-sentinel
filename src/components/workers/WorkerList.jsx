@@ -1,5 +1,5 @@
 // src/components/WorkerList.jsx
-import { formatHashrate } from "../utils/helpers";
+import { formatHashrate } from "../../utils/helpers";
 
 const WorkerList = ({ workers }) => {
   if (!Array.isArray(workers) || workers.length === 0) {

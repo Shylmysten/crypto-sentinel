@@ -2,9 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import AppRoutes from './AppRoutes';
-import Header from './components/Header';
-import PoolSelector from './components/PoolSelector';
-import WalletForm from './components/WalletForm';
+import Header from './components/common/Header';
 import sentinelLogo from '/sentinel_logo.png';
 import MatrixCanvas from './components/MatrixCanvas';
 
