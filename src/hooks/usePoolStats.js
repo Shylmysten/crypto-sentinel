@@ -12,6 +12,34 @@ export const usePoolStats = (walletOrToken, pool) => {
     lastUpdated: null,
   });
 
+  // Enhanced error handling function
+  const getErrorMessage = (error, pool) => {
+    const message = error.message?.toLowerCase() || '';
+    
+    // Network/Connection errors
+    if (message.includes('network') || message.includes('fetch')) {
+      return 'Network connection failed. Please check your internet and try again.';
+    }
+    
+    // Authentication/Invalid wallet errors
+    if (message.includes('401') || message.includes('unauthorized') || message.includes('invalid')) {
+      return `Invalid ${pool === 'hiveos' || pool === 'powerpool' ? 'API token' : 'wallet address'}. Please check your credentials.`;
+    }
+    
+    // Rate limiting
+    if (message.includes('429') || message.includes('rate limit')) {
+      return 'Too many requests. Please wait a moment and try again.';
+    }
+    
+    // API unavailable
+    if (message.includes('500') || message.includes('503')) {
+      return `${pool} API is temporarily unavailable. Please try again later.`;
+    }
+    
+    // Default fallback
+    return `Failed to load ${pool} data. Please try again.`;
+  };
+
   useEffect(() => {
     const fetch = async () => {
       setData((prev) => ({ ...prev, loading: true, error: null }));
@@ -57,12 +85,15 @@ export const usePoolStats = (walletOrToken, pool) => {
           lastUpdated: new Date(),
         });
       } catch (err) {
-        // Add logging for debugging
+        // Enhanced logging for debugging - NO sensitive data
         console.error('Pool stats fetch error:', {
           pool,
-          walletOrToken: walletOrToken?.substring(0, 10) + '...', // Don't log full sensitive data
-          error: err.message,
-          timestamp: new Date().toISOString()
+          walletType: pool === 'hiveos' || pool === 'powerpool' ? 'API_TOKEN' : 'WALLET_ADDRESS',
+          errorType: err.name || 'Unknown',
+          errorMessage: err.message,
+          timestamp: new Date().toISOString(),
+          // Only log first line of stack trace to avoid exposing sensitive data
+          stack: err.stack?.split('\n')[0]
         });
 
         setData({
@@ -70,7 +101,7 @@ export const usePoolStats = (walletOrToken, pool) => {
           workers: [],
           payouts: [],
           loading: false,
-          error: err.message || 'Failed to load data.',
+          error: getErrorMessage(err, pool),
           lastUpdated: null,
         });
       }

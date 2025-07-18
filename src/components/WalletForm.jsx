@@ -65,7 +65,14 @@ const WalletForm = ({ onSuccess }) => {
       if (onSuccess) onSuccess(); // ✅ Refresh wallet list
       toast.success('Wallet/Token saved successfully!');
     } catch (error) {
-      console.error('Error saving wallet/token:', error);
+      // Enhanced security logging - no sensitive data
+      console.error('Error saving wallet/token:', {
+        pool: form.pool,
+        errorType: error.name || 'Unknown',
+        errorMessage: error.message,
+        timestamp: new Date().toISOString(),
+        userId: user?.uid?.substring(0, 8) + '...' // Partial user ID only
+      });
       toast.error('Failed to save wallet/token. Please try again.');
     } finally {
       setIsSubmitting(false);

@@ -1,4 +1,4 @@
-// src/components/DashboardCard.jsx
+// src/components/dashboard/DashboardCard.jsx
 import { useMemo } from 'react';
 import { usePoolMeta } from '../../hooks/usePoolMeta';
 import { usePoolStats } from '../../hooks/usePoolStats';
@@ -14,10 +14,28 @@ import DashboardLoading from './DashboardLoading';
 import DashboardEmpty from './DashboardEmpty';
 
 const DashboardCard = ({ walletOrToken, pool, label }) => {
+  const poolMeta = usePoolMeta(pool);
+
   // ✅ Step 6: Decrypt token if needed
   const decrypted = (pool === 'powerpool' || pool === 'hiveos')
     ? decryptToken(walletOrToken)
     : walletOrToken;
+
+  // ✅ Create safe display value that never exposes full sensitive data
+  const getDisplayValue = () => {
+    if (label) return label; // Use label if provided
+    
+    const isTokenPool = pool === 'hiveos' || pool === 'powerpool';
+    if (isTokenPool) {
+      // Never show actual API tokens - show generic label
+      return `${poolMeta.name} API Token`;
+    } else {
+      // For wallet addresses, show first 6 and last 4 characters
+      return decrypted?.length > 10 
+        ? `${decrypted.substring(0, 6)}...${decrypted.substring(decrypted.length - 4)}`
+        : decrypted;
+    }
+  };
 
   // ✅ Use decrypted token (or original wallet) for stats hook
   const {
@@ -38,8 +56,6 @@ const DashboardCard = ({ walletOrToken, pool, label }) => {
     }
   }, [pool]);
 
-  const poolMeta = usePoolMeta(pool);
-
   if (!isWalletValid(decrypted, pool)) {
     return (
       <DashboardError 
@@ -52,7 +68,7 @@ const DashboardCard = ({ walletOrToken, pool, label }) => {
     return (
       <DashboardLoading
         poolName={poolMeta.name}
-        label={label || decrypted}
+        label={getDisplayValue()}
       />
     );
   }
@@ -77,7 +93,7 @@ const DashboardCard = ({ walletOrToken, pool, label }) => {
     <div className="border border-green-500 p-6 rounded shadow bg-black bg-opacity-60 text-green-300 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-bold text-green-400">
-          {label || decrypted}
+          {getDisplayValue()}
         </h3>
         <div className="flex items-center gap-2 text-sm text-green-300">
           {poolMeta.hasIcon && (
