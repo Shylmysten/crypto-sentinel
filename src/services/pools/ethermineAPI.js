@@ -5,7 +5,12 @@ const base = 'https://api.ethermine.org/miner';
 
 export const getDashboard = async (wallet) => {
   const res = await axios.get(`${base}/${wallet}/dashboard`);
-  return res.data?.data?.currentStatistics;
+  const data = res.data?.data?.currentStatistics;
+  
+  return {
+    ...data,
+    unit: 'ETH' // Ethermine always uses ETH
+  };
 };
 
 export const getWorkers = async (wallet) => {

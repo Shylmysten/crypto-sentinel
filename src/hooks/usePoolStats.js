@@ -1,5 +1,5 @@
 // src/hooks/usePoolStats.js
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { getPoolService } from '../services/poolService';
 
 export const usePoolStats = (walletOrToken, pool) => {
@@ -40,8 +40,55 @@ export const usePoolStats = (walletOrToken, pool) => {
     return `Failed to load ${pool} data. Please try again.`;
   };
 
+  // Cache and performance utilities
+  const cacheRef = useRef(new Map());
+  const abortControllerRef = useRef(null);
+  
+  // Generate cache key for current request
+  const getCacheKey = useCallback((wallet, pool) => {
+    return `${pool}-${wallet?.substring(0, 10)}...`; // Safe cache key without full sensitive data
+  }, []);
+  
+  // Check if cached data is still fresh (within 2 minutes)
+  const isCacheFresh = useCallback((cachedData) => {
+    const CACHE_DURATION = 2 * 60 * 1000; // 2 minutes
+    return cachedData && (Date.now() - cachedData.timestamp) < CACHE_DURATION;
+  }, []);
+
+  // Manual refresh function with debouncing
+  const refreshData = useCallback(() => {
+    if (walletOrToken && pool) {
+      // Clear cache for this wallet/pool combination
+      const cacheKey = getCacheKey(walletOrToken, pool);
+      cacheRef.current.delete(cacheKey);
+      
+      // Trigger re-fetch
+      setData(prev => ({ ...prev, loading: true, error: null }));
+    }
+  }, [walletOrToken, pool, getCacheKey]);
+
   useEffect(() => {
     const fetch = async () => {
+      // Cancel any previous request
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      
+      const cacheKey = getCacheKey(walletOrToken, pool);
+      const cachedData = cacheRef.current.get(cacheKey);
+      
+      // Return cached data if fresh
+      if (isCacheFresh(cachedData)) {
+        setData({
+          ...cachedData.data,
+          loading: false,
+        });
+        return;
+      }
+
+      // Create new abort controller for this request
+      abortControllerRef.current = new AbortController();
+      
       setData((prev) => ({ ...prev, loading: true, error: null }));
       try {
         const api = getPoolService(pool);
@@ -84,7 +131,25 @@ export const usePoolStats = (walletOrToken, pool) => {
           error: null,
           lastUpdated: new Date(),
         });
+        
+        // Cache the successful response
+        cacheRef.current.set(cacheKey, {
+          data: {
+            dashboard,
+            workers,
+            payouts,
+            loading: false,
+            error: null,
+            lastUpdated: new Date(),
+          },
+          timestamp: Date.now()
+        });
       } catch (err) {
+        // Don't set error state if request was aborted
+        if (err.name === 'AbortError') {
+          return;
+        }
+        
         // Enhanced logging for debugging - NO sensitive data
         console.error('Pool stats fetch error:', {
           pool,
@@ -108,7 +173,14 @@ export const usePoolStats = (walletOrToken, pool) => {
     };
 
     if (walletOrToken && pool) fetch();
-  }, [walletOrToken, pool]);
+    
+    // Cleanup function to abort request on unmount/re-render
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, [walletOrToken, pool, getCacheKey, isCacheFresh]);
 
-  return data;
+  return { ...data, refreshData };
 };
