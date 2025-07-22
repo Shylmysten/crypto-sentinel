@@ -15,7 +15,7 @@ export const getPoolService = (pool) => {
       return f2poolAPI;
     case 'hiveos':
       return hiveonAPI;
-    case 'powerpool': // ✅ Register here
+    case 'powerpool':
       return powerpoolAPI;
     default:
       throw new Error(`Unsupported pool: ${pool}`);

@@ -12,12 +12,13 @@ const WorkerList = ({ workers }) => {
       <ul className="text-green-300 font-mono text-sm space-y-1">
         {workers.map((w, idx) => {
           const name = w.worker || w.name || `Worker-${idx + 1}`;
+          const algorithm = w.algorithm || w.algo || 'Unknown';
           const online = w.isOnline ?? w.online ?? w.status === 'online';
           const hashrate = w.currentHashrate ?? w.hashrate ?? 0;
 
           return (
             <li key={name}>
-              <strong>{name}</strong> — {online ? '🟢 Online' : '🔴 Offline'} — {formatHashrate(hashrate)}
+              <strong>{name}</strong> - {algorithm} — {online ? '🟢 Online' : '🔴 Offline'} — {formatHashrate(hashrate)}
             </li>
           );
         })}

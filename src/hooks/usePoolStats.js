@@ -173,6 +173,8 @@ export const usePoolStats = (walletOrToken, pool) => {
     };
 
     if (walletOrToken && pool) fetch();
+
+   
     
     // Cleanup function to abort request on unmount/re-render
     return () => {

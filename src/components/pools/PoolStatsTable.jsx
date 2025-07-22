@@ -1,12 +1,95 @@
 const PoolStatsTable = ({ stats }) => {
   if (!stats) return null;
+ console.log('Rendering PoolStatsTable with stats:', stats);
+  // Helper function to format values safely
+  const formatValue = (value, unit = '', fallback = 'N/A') => {
+    if (value === null || value === undefined) return fallback;
+    return `${value}${unit ? ` ${unit}` : ''}`;
+  };
 
-  const rows = [
-    { label: 'Latency', value: `${stats.latency} ms` },
-    { label: 'Minimum Payout', value: `${stats.minPayout} ETH` },
-    { label: 'Network Hashrate', value: `${stats.networkHashrate} TH/s` },
-    { label: 'Block Time', value: `${stats.blockTime} sec` },
-  ];
+  // Build rows dynamically based on available data
+  const rows = [];
+
+  // Standard pool stats with dynamic units
+  if (stats.latency !== undefined) {
+    rows.push({ 
+      label: 'Latency', 
+      value: formatValue(stats.latency, 'ms') 
+    });
+  }
+
+  if (stats.minPayout !== undefined) {
+    rows.push({ 
+      label: 'Minimum Payout', 
+      value: formatValue(stats.minPayout, stats.payoutUnit || 'ETH') 
+    });
+  }
+
+  if (stats.networkHashrate !== undefined) {
+    rows.push({ 
+      label: 'Network Hashrate', 
+      value: formatValue(stats.networkHashrate, stats.networkHashrateUnit || 'TH/s') 
+    });
+  }
+
+  if (stats.blockTime !== undefined) {
+    rows.push({ 
+      label: 'Block Time', 
+      value: formatValue(stats.blockTime, 'sec') 
+    });
+  }
+
+  // PowerPool specific stats
+  if (stats.hashrateUnit) {
+    //console.log('Using hashrateUnit:', stats.hashrateUnit);
+    rows.push({ 
+      label: 'Hashrate Unit', 
+      value: stats.hashrateUnit 
+    });
+  }
+
+  if (stats.avgUnit) {
+    rows.push({ 
+      label: 'Average Hashrate Unit', 
+      value: stats.avgUnit 
+    });
+  }
+
+  if (stats.algo) {
+    rows.push({ 
+      label: 'Algorithm', 
+      value: stats.algo.toUpperCase() 
+    });
+  }
+
+  // Pool difficulty (if available)
+  if (stats.difficulty !== undefined) {
+    rows.push({ 
+      label: 'Pool Difficulty', 
+      value: formatValue(stats.difficulty, stats.difficultyUnit || '') 
+    });
+  }
+
+  // Pool fee (if available)
+  if (stats.fee !== undefined) {
+    rows.push({ 
+      label: 'Pool Fee', 
+      value: formatValue(stats.fee, '%') 
+    });
+  }
+
+  // Blocks found (if available)
+  if (stats.blocksFound !== undefined) {
+    rows.push({ 
+      label: 'Blocks Found', 
+      value: formatValue(stats.blocksFound) 
+    });
+  }
+
+  // If no relevant stats are available, don't render the table
+  if (rows.length === 0) {
+    return null;
+  }
 
   return (
     <div className="mt-6">

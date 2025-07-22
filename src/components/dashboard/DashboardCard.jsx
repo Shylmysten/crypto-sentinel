@@ -3,9 +3,7 @@ import { useMemo } from 'react';
 import { usePoolMeta } from '../../hooks/usePoolMeta';
 import { usePoolStats } from '../../hooks/usePoolStats';
 import EarningsSummary from '../earnings/EarningsSummary';
-import PoolStatsTable from '../pools/PoolStatsTable';
 import WorkerTable from '../workers/WorkerTable';
-import WorkerList from '../workers/WorkerList';
 import RewardsTable from '../earnings/RewardsTable';
 import { isWalletValid } from '../../utils/helpers';
 import { decryptToken } from '../../utils/crypto';
@@ -29,6 +27,8 @@ const DashboardCard = ({ walletOrToken, pool, label }) => {
     }
   }, [walletOrToken, pool]);
 
+
+
   // ✅ Use decrypted token (or original wallet) for stats hook
   const {
     dashboard,
@@ -42,22 +42,22 @@ const DashboardCard = ({ walletOrToken, pool, label }) => {
 
   const unit = useMemo(() => {
     // Debug logging to see what we're getting
-    console.log('DashboardCard unit calculation:', {
-      pool,
-      'dashboard?.unit': dashboard?.unit,
-      'dashboard?.balanceInfo': dashboard?.balanceInfo,
-      'full dashboard': dashboard
-    });
+    //console.log('DashboardCard unit calculation:', {
+    //  pool,
+    //  'dashboard?.unit': dashboard?.unit,
+    //  'dashboard?.balanceInfo': dashboard?.balanceInfo,
+    //  'full dashboard': dashboard
+    //});
     
     // First, try to get unit from dashboard data if available
     if (dashboard?.unit) {
-      console.log('Using dashboard.unit:', dashboard.unit);
+      //console.log('Using dashboard.unit:', dashboard.unit);
       return dashboard.unit;
     }
     
     // For PowerPool, check the balance data for currency
     if (pool === 'powerpool' && dashboard?.balanceInfo?.currency) {
-      console.log('Using PowerPool balanceInfo.currency:', dashboard.balanceInfo.currency);
+      //console.log('Using PowerPool balanceInfo.currency:', dashboard.balanceInfo.currency);
       return dashboard.balanceInfo.currency;
     }
     
@@ -78,7 +78,7 @@ const DashboardCard = ({ walletOrToken, pool, label }) => {
       }
     })();
     
-    console.log('Using default unit for pool', pool, ':', defaultUnit);
+    //console.log('Using default unit for pool', pool, ':', defaultUnit);
     return defaultUnit;
   }, [pool, dashboard]);
 
@@ -142,7 +142,7 @@ const DashboardCard = ({ walletOrToken, pool, label }) => {
 
   return (
     <div className="border border-green-500 p-6 rounded shadow bg-black bg-opacity-60 text-green-300 space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <h3 className="text-xl font-bold text-green-400">
           {getDisplayValue()}
         </h3>
@@ -188,13 +188,6 @@ const DashboardCard = ({ walletOrToken, pool, label }) => {
         unit={unit}
       />
 
-      {dashboard.poolStats ? (
-        <PoolStatsTable stats={dashboard.poolStats} />
-      ) : (
-        <p className="text-sm text-gray-400">No pool stats available.</p>
-      )}
-
-      <WorkerList workers={workers} />
       <WorkerTable workers={workers} />
       <RewardsTable rewards={payouts} unit={unit} />
     </div>
